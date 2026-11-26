@@ -26,6 +26,7 @@
         <div class="otp-hdr-actions">
           <button type="button" class="otp-mini-btn" id="otp-f-gear" title="Server URL">⚙</button>
           <button type="button" class="otp-mini-btn" id="otp-f-min" aria-label="Minimize OTP panel" title="Minimize">−</button>
+          <button type="button" class="otp-mini-btn" id="otp-f-close" aria-label="Hide OTP panel" title="Close">✕</button>
         </div>
       </div>
 
@@ -204,6 +205,13 @@
     fab.setAttribute('aria-expanded', 'false');
     card.classList.add('otp-f-hidden');
     fab.classList.remove('otp-f-hidden');
+  });
+
+  root.querySelector('#otp-f-close').addEventListener('click', () => {
+    isOpen = false;
+    polling = false;
+    if (pollTimer) clearInterval(pollTimer);
+    root.style.display = 'none';
   });
 
   root.querySelector('#otp-f-gear').addEventListener('click', () => {
