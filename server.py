@@ -27,11 +27,15 @@ PORT = int(os.environ.get("PORT", "8500"))
 
 FIREBASE_ADPE_URL = "https://shoaib-gaurd-default-rtdb.firebaseio.com/adpe_numbers"
 
-SESSION_STRING = os.environ.get("TG_SESSION_STRING", "").strip()
+SESSION_STRING = os.environ.get("TG_SESSION_STRING", "").strip().strip('"').strip("'")
 SESSION_PATH = os.path.join(BASE_DIR, "main_account")
 
 if SESSION_STRING:
-    client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
+    try:
+        client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
+    except Exception as _se:
+        print(f"Invalid TG_SESSION_STRING ({_se}), falling back to file session", flush=True)
+        client = TelegramClient(SESSION_PATH, API_ID, API_HASH)
 else:
     client = TelegramClient(SESSION_PATH, API_ID, API_HASH)
 
@@ -458,7 +462,11 @@ async def on_startup(app):
     if os.environ.get("RENDER") and (not ACCESS_TOKEN or not SESSION_STRING):
         raise RuntimeError("Render requires OTP_ACCESS_TOKEN and TG_SESSION_STRING")
     http_session = aiohttp.ClientSession()
-    await client.connect()
+    try:
+        await asyncio.wait_for(client.connect(), timeout=15)
+        print("Telegram client connected on startup.", flush=True)
+    except Exception as e:
+        print(f"Telegram startup connect warning: {e}", flush=True)
 
 
 async def handle_automation(request):
