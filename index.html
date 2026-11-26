@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TG OTP Panel</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background: #0d0d10;
+      color: #f4f4f5;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 960px; margin: 0 auto; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: #16161b;
+      border: 1px solid #27272f;
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+    .header h1 { font-size: 18px; font-weight: 600; }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #27272a;
+      color: #a1a1aa;
+    }
+    .badge.green { background: rgba(16,185,129,0.18); color: #34d399; }
+    .badge.red { background: rgba(239,68,68,0.18); color: #f87171; }
+    .badge.blue { background: rgba(59,130,246,0.18); color: #60a5fa; }
+
+    .card {
+      background: #16161b;
+      border: 1px solid #27272f;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .card h2 {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #a1a1aa;
+      margin-bottom: 12px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      background: #0d0d10;
+      border: 1px solid #2e2e38;
+      border-radius: 8px;
+      color: #f4f4f5;
+      font-size: 14px;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: #52525b; }
+    button {
+      padding: 10px 16px;
+      border: 1px solid #3f3f46;
+      border-radius: 8px;
+      background: #27272a;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button:hover { background: #3f3f46; }
+    button.primary {
+      background: #ffffff;
+      color: #09090b;
+      border-color: #ffffff;
+    }
+    button.primary:hover { background: #e4e4e7; }
+    button.danger {
+      background: rgba(239,68,68,0.15);
+      color: #f87171;
+      border-color: rgba(239,68,68,0.3);
+    }
+    button.danger:hover { background: rgba(239,68,68,0.28); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .row { display: flex; gap: 10px; align-items: center; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .big-number {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      font-family: monospace;
+      margin: 8px 0;
+    }
+    .otp-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: #0d0d10;
+      border: 1px solid #27272f;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .otp-code {
+      font-size: 22px;
+      font-weight: 700;
+      font-family: monospace;
+      color: #34d399;
+      letter-spacing: 2px;
+    }
+    .otp-context {
+      font-size: 12px;
+      color: #a1a1aa;
+      margin-top: 4px;
+    }
+    .msg-box {
+      background: #0d0d10;
+      border: 1px solid #27272f;
+      border-radius: 8px;
+      padding: 12px;
+      white-space: pre-wrap;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #d4d4d8;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .btn-grid { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .btn-row { display: flex; gap: 6px; }
+    .btn-row button { flex: 1; font-size: 12px; padding: 8px; }
+    .hidden { display: none !important; }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #ffffff;
+      color: #09090b;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      z-index: 9999;
+    }
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #34d399;
+      margin-right: 6px;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header hidden" aria-hidden="true">
+    <div class="row">
+      <span id="userBadge" class="badge">Checking...</span>
+      <span id="usedBadge" class="badge blue">AdPe DB: 0</span>
+      <button id="logoutBtn" class="danger hidden" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- LOGIN CARD -->
+  <div id="loginCard" class="card hidden">
+    <h2>Telegram Account Login</h2>
+    <p style="font-size:13px;color:#a1a1aa;margin-bottom:14px;">
+      Enter your main Telegram phone number that has access to the OTP panel bots. Session will be saved automatically.
+    </p>
+    <div id="stepPhone">
+      <div class="row">
+        <input id="phoneInput" type="text" placeholder="+919876543210" />
+        <button class="primary" onclick="sendCode()">Send OTP</button>
+      </div>
+    </div>
+    <div id="stepCode" class="hidden" style="margin-top:12px;">
+      <div class="row">
+        <input id="codeInput" type="text" placeholder="Telegram Code (5 digits)" />
+        <input id="passInput" type="password" placeholder="2FA Password (if enabled)" class="hidden" />
+        <button class="primary" onclick="signIn()">Verify & Login</button>
+      </div>
+    </div>
+    <div id="loginError" style="color:#f87171;font-size:13px;margin-top:10px;"></div>
+  </div>
+
+  <!-- MAIN PANEL -->
+  <div id="panelCard" class="hidden">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:8px;">
+        <span style="overflow-wrap:anywhere;">khanshoaibro1@gmail.com</span>
+        <button onclick="copyText(this.previousElementSibling.textContent)" style="padding:5px 9px;font-size:12px;">Copy</button>
+      </div>
+      <div class="row" style="justify-content:space-between;margin-bottom:8px;">
+        <span style="overflow-wrap:anywhere;">shoaib786shoaib</span>
+        <button onclick="copyText(this.previousElementSibling.textContent)" style="padding:5px 9px;font-size:12px;">Copy</button>
+      </div>
+      <div class="row" style="justify-content:space-between;">
+        <span>MA57SB</span>
+        <button onclick="copyText(this.previousElementSibling.textContent)" style="padding:5px 9px;font-size:12px;">Copy</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Check Number</h2>
+      <div class="row">
+        <input id="numberInput" type="tel" inputmode="tel" placeholder="Enter number" oninput="document.getElementById('freshStatus').textContent=''" />
+        <button onclick="copyText(document.getElementById('numberInput').value.trim())" style="padding:5px 9px;font-size:12px;">Copy</button>
+        <button class="primary" onclick="checkNumber()">Check Number</button>
+      </div>
+      <div id="freshStatus" role="status" style="margin-top:12px;"></div>
+    </div>
+    <!-- Bot Latest Message & Interactive Buttons -->
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px;">
+        <h2 style="margin:0;">Dark Panel</h2><button onclick="startBot()">Start Bot</button>
+      </div>
+      <div class="btn-grid" id="botButtons"></div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+  let currentBot = '@Dark_Panel_83_bot';
+  let latestMsg = null;
+  let polling = true;
+  let pollTimer = null;
+  const sessionFreshPhones = new Set();
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.remove('hidden');
+    setTimeout(() => t.classList.add('hidden'), 2000);
+  }
+
+  async function api(url, method = 'GET', body = null) {
+    const opts = { method, headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(30000) };
+    const token = sessionStorage.getItem('otpAccessToken');
+    if (token) opts.headers.Authorization = `Bearer ${token}`;
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(url, opts);
+    if (res.status === 401 && !token) {
+      const entered = prompt('Enter your server OTP_ACCESS_TOKEN');
+      if (entered) { sessionStorage.setItem('otpAccessToken', entered.trim()); return api(url, method, body); }
+    }
+    if (res.status === 401 && token) sessionStorage.removeItem('otpAccessToken');
+    const responseText = await res.text();
+    let data;
+    try { data = JSON.parse(responseText); }
+    catch (_) {
+      if (res.status === 404) {
+        throw new Error('API endpoint missing. Restart the backend with python server.py (or redeploy Render), then refresh this page.');
+      }
+      throw new Error(`Server returned an invalid response (HTTP ${res.status}). Check backend logs and retry.`);
+    }
+    if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
+    return data;
+  }
+
+  async function checkAuth() {
+    const badge = document.getElementById('userBadge');
+    badge.textContent = 'Checking…';
+    badge.onclick = null;
+    try {
+    const data = await api('/api/auth/status');
+    if (typeof data.authorized !== 'boolean') throw new Error(data.error || 'Invalid server response');
+    document.getElementById('usedBadge').textContent = `AdPe DB: ${data.used_count || 0}`;
+    if (data.authorized) {
+      document.getElementById('loginCard').classList.add('hidden');
+      document.getElementById('panelCard').classList.remove('hidden');
+      document.getElementById('logoutBtn').classList.remove('hidden');
+      document.getElementById('userBadge').textContent = `${data.user.first_name} (+${data.user.phone})`;
+      document.getElementById('userBadge').className = 'badge green';
+      await api('/api/dark-panel', 'POST', { action: 'stop' });
+      await loadBotMessages();
+      startPolling();
+    } else {
+      document.getElementById('loginCard').classList.remove('hidden');
+      document.getElementById('panelCard').classList.add('hidden');
+      document.getElementById('logoutBtn').classList.add('hidden');
+      document.getElementById('userBadge').textContent = 'Not Logged In';
+      document.getElementById('userBadge').className = 'badge red';
+    }
+    } catch (error) {
+      badge.textContent = 'Connection failed · Retry';
+      badge.className = 'badge red';
+      badge.style.cursor = 'pointer';
+      badge.onclick = checkAuth;
+      const message = error.name === 'TimeoutError'
+        ? 'Server took too long. Check that the backend is running, then tap Retry.'
+        : error.message;
+      badge.title = message;
+      document.getElementById('loginCard').classList.remove('hidden');
+      document.getElementById('loginError').textContent = message;
+    }
+  }
+
+  async function sendCode() {
+    const phone = document.getElementById('phoneInput').value.trim();
+    const err = document.getElementById('loginError');
+    err.textContent = '';
+    const res = await api('/api/auth/send_code', 'POST', { phone });
+    if (res.ok) {
+      document.getElementById('stepCode').classList.remove('hidden');
+      showToast('OTP sent to your Telegram!');
+    } else {
+      err.textContent = res.error;
+    }
+  }
+
+  async function signIn() {
+    const code = document.getElementById('codeInput').value.trim();
+    const password = document.getElementById('passInput').value.trim();
+    const err = document.getElementById('loginError');
+    err.textContent = '';
+    const res = await api('/api/auth/sign_in', 'POST', { code, password });
+    if (res.ok) {
+      showToast('Login successful!');
+      checkAuth();
+    } else {
+      if (res.need_password) {
+        document.getElementById('passInput').classList.remove('hidden');
+      }
+      err.textContent = res.error;
+    }
+  }
+
+  async function logout() {
+    await api('/api/auth/logout', 'POST');
+    checkAuth();
+  }
+
+  function getSelectedBot() { return '@Dark_Panel_83_bot'; }
+
+  async function loadBotMessages() {
+    try {
+      const res = await api('/api/bot/messages?bot=' + encodeURIComponent(currentBot));
+      renderBotMessages(res.messages);
+    } catch (error) { showToast(error.message); }
+  }
+  async function checkNumber() {
+    const input = document.getElementById('numberInput');
+    const value = input.value;
+    const status = document.getElementById('freshStatus');
+    status.style.color = '#a1a1aa';
+    status.textContent = 'Checking…';
+    try {
+      const result = await api('/api/numbers/check', 'POST', { phone: value });
+      if (input.value === value) {
+        status.textContent = result.phone + (result.is_duplicate ? ' — DUPLICATE' : ' — FRESH (SAVED)');
+        status.style.color = result.is_duplicate ? '#f87171' : '#34d399';
+      }
+    } catch (error) { if (input.value === value) status.textContent = error.message; }
+  }
+  async function startBot() {
+    try {
+      const res = await api('/api/bot/click', 'POST', { bot: currentBot, text: '/start' });
+      renderBotMessages(res.messages);
+    } catch (error) { showToast(error.message); }
+  }
+
+  function renderBotMessages(messages) {
+    if (!messages || messages.length === 0) return;
+
+    let target = messages.find(m => m.phone || (m.buttons && m.buttons.length > 0)) || messages[0];
+    latestMsg = target;
+
+
+    const btnDiv = document.getElementById('botButtons');
+    btnDiv.innerHTML = '';
+    if (target.buttons && target.buttons.length > 0) {
+      for (const row of target.buttons) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'btn-row';
+        for (const btn of row) {
+          const b = document.createElement('button');
+          b.textContent = btn.text;
+          b.disabled = btn.has_url;
+          b.onclick = async () => {
+            const otp = btn.text.match(/Copy\s*OTP\s*:\s*(\d{4,8})\b/i);
+            if (otp) { await copyText(otp[1]); return; }
+            const match = btn.text.match(/(?:^|\D)(?:\+?91[ -]?)?([6-9]\d{9})(?!\d)/);
+            if (match) {
+              document.getElementById('numberInput').value = match[1];
+              document.getElementById('freshStatus').textContent = '';
+            }
+            b.disabled = true;
+            try { await clickBotButton(target.id, btn.row, btn.col); }
+            catch (error) { showToast(error.message); }
+            finally { b.disabled = false; }
+          };
+          rowDiv.appendChild(b);
+        }
+        btnDiv.appendChild(rowDiv);
+      }
+    }
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  async function clickBotButton(msgId, row, col) {
+    if (!currentBot) return;
+    const res = await api('/api/bot/click', 'POST', { bot: currentBot, msg_id: msgId, row, col });
+    if (res.ok) {
+      if (typeof res.used_count === 'number') {
+        document.getElementById('usedBadge').textContent = `AdPe DB: ${res.used_count}`;
+      }
+      renderBotMessages(res.messages);
+    } else {
+      showToast(res.error || 'Error clicking button');
+    }
+  }
+
+  async function sendCustomCmd() {
+    const txt = document.getElementById('customCmdInput').value.trim();
+    if (!txt || !currentBot) return;
+    const res = await api('/api/bot/click', 'POST', { bot: currentBot, text: txt });
+    document.getElementById('customCmdInput').value = '';
+    if (res.ok) renderBotMessages(res.messages);
+  }
+
+  function copyPhone() {
+    if (!latestMsg || !latestMsg.phone) return;
+    copyText(latestMsg.phone);
+  }
+
+  async function copyText(txt) {
+    if (!txt) return;
+    try {
+      await navigator.clipboard.writeText(txt);
+      showToast('Copied!');
+    } catch (_) { showToast('Copy failed. Use HTTPS or localhost and allow clipboard access.'); }
+  }
+
+  function startPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(() => {
+      if (polling && currentBot) {
+        loadBotMessages();
+      }
+    }, 3000);
+  }
+
+  function togglePolling() {
+    polling = !polling;
+    document.getElementById('togglePollBtn').textContent = polling ? 'Pause' : 'Resume';
+    document.getElementById('pollDot').style.background = polling ? '#34d399' : '#71717a';
+  }
+
+  checkAuth();
+</script>
+</body>
+</html>

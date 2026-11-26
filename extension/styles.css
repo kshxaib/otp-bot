@@ -1,0 +1,196 @@
+#shoaib-otp-float-root {
+  position: fixed;
+  top: 90px;
+  right: 16px;
+  z-index: 2147483647;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.otp-fab {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #121216;
+  color: #34d399;
+  border: 1.5px solid rgba(52, 211, 153, 0.55);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.otp-fab:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+.otp-card {
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  max-height: 76vh;
+  overflow-y: auto;
+  background: #111115;
+  color: #f4f4f5;
+  border: 1px solid #2c2c35;
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.85);
+  font-size: 13px;
+}
+
+.otp-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #24242c;
+  cursor: grab;
+  touch-action: none;
+}
+
+.otp-hdr-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.otp-hdr-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.otp-mini-btn {
+  background: #23232a;
+  color: #e4e4e7;
+  border: 1px solid #383844;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.otp-mini-btn.primary {
+  background: #ffffff;
+  color: #09090b;
+  border-color: #ffffff;
+}
+
+.otp-mini-btn:disabled {
+  opacity: 0.5;
+}
+
+.otp-f-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.otp-f-inp {
+  flex: 1;
+  min-width: 0;
+  background: #09090b;
+  color: #ffffff;
+  border: 1px solid #2e2e38;
+  border-radius: 7px;
+  padding: 7px 9px;
+  font-size: 12px;
+  outline: none;
+}
+
+.otp-f-box {
+  background: #09090b;
+  border: 1px solid #24242c;
+  border-radius: 9px;
+  padding: 9px;
+  margin-bottom: 8px;
+}
+
+.otp-f-num {
+  font-family: monospace;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+.otp-f-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: #27272a;
+  color: #a1a1aa;
+}
+
+.otp-f-badge.fresh {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.otp-f-badge.dup {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.otp-f-badge.wake {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.otp-f-otp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  background: #141419;
+  border: 1px solid #272730;
+  border-radius: 7px;
+  margin-top: 5px;
+}
+
+.otp-f-code {
+  font-family: monospace;
+  font-size: 17px;
+  font-weight: 700;
+  color: #34d399;
+  letter-spacing: 1.5px;
+}
+
+.otp-f-bot-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.otp-f-btn-row {
+  display: flex;
+  gap: 5px;
+}
+
+.otp-f-btn-row button {
+  flex: 1;
+  padding: 6px;
+  font-size: 11px;
+}
+
+.otp-f-hidden {
+  display: none !important;
+}
+
+@media (pointer: coarse) {
+  #shoaib-otp-float-root .otp-mini-btn { min-height: 44px; }
+  #shoaib-otp-float-root .otp-f-inp { min-height: 44px; font-size: 16px; box-sizing: border-box; }
+  #shoaib-otp-float-root .otp-card { width: min(320px, calc(100vw - 32px)); box-sizing: border-box; }
+}
